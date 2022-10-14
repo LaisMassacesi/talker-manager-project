@@ -46,4 +46,5 @@ app.get('/talker/:id', async (req, res) => {
   return res.status(404).json(message);
 });
 
-app.post('/login', emailValidation, passwordValidation, (req, res) => res.status(200).json({ token: token() }));
+app.post('/login', emailValidation, passwordValidation, (req, res) => 
+  res.status(200).json({ token: token() }));
