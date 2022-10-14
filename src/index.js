@@ -2,13 +2,18 @@ const express = require('express');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const fsUtils = require('./services/fsUtils');
+const { emailValidation } = require('./middleware/ValidateEmail');
+const { passwordValidation } = require('./middleware/ValidatePassword');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
+// const router = express.Router();
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
+
+const token = () => crypto.randomBytes(8).toString('hex');
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -41,8 +46,6 @@ app.get('/talker/:id', async (req, res) => {
   return res.status(404).json(message);
 });
 
-app.post('/login', (req, res) => {
-  const token = crypto.randomBytes(8).toString('hex');
-
-  res.status(200).json({ token });
+app.post('/login', emailValidation, passwordValidation, (req, res) => {
+  return res.status(200).json({ token: token() });
 });
