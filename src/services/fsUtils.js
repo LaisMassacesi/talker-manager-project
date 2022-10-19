@@ -13,7 +13,6 @@ const readFile = async () => {
     return [];
   }
 };
-// readFile();
 
 module.exports = {
   readFile,

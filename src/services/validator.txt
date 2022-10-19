@@ -1,0 +1,29 @@
+const joi = require('joi');
+
+const talkerSchema = joi.object({
+  name: joi.string().min(3).required().messages({ 
+    message: 'O {{#label}} deve ter pelo menos 3 caracteres' }),
+  age: joi.number().min(18).required().messages({ 
+    message: 'A pessoa palestrante deve ser maior de idade' }),
+  talk: joi.object({
+    watchedAt: joi.string().required().messages({ 
+      message: 'O campo {{#label}} deve ter o formato "dd/mm/aaaa"' }),
+    rate: joi.number().max(5).required().messages({ 
+      message: 'O campo {{#label}} deve ser um inteiro de 1 à 5' }),
+  }),
+}).messages({
+  'string.empty': 'O campo {{#label}} é obrigatório',
+});
+
+const newTalkerValidator = async (talkers) => {
+  const { error } = await talkerSchema.validate(talkers);
+  console.log(error);
+
+  if (error) {
+    return { message: error.details[0].message, status: 400 };
+  }
+};
+
+module.exports = {
+  newTalkerValidator,
+};

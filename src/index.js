@@ -1,9 +1,20 @@
 const express = require('express');
+require('express-async-errors');
 const crypto = require('crypto');
+const fs = require('fs').promises;
 const bodyParser = require('body-parser');
+const path = require('path');
 const fsUtils = require('./services/fsUtils');
 const { emailValidation } = require('./middleware/ValidateEmail');
 const { passwordValidation } = require('./middleware/ValidatePassword');
+const { 
+  nameValidation,
+  ageValidation,
+  talkValidation,
+  watchedAtValidation,
+  rateValidation,
+  tokenValidation,
+ } = require('./services/validations');
 
 const app = express();
 app.use(bodyParser.json());
@@ -24,7 +35,7 @@ app.listen(PORT, () => {
   console.log('Online');
 });
 
-app.get('/talker', async (req, res) => {
+app.get('/talker', async (_req, res) => {
   const talkers = await fsUtils.readFile();
 
   res.status(200).json(talkers);
@@ -46,5 +57,29 @@ app.get('/talker/:id', async (req, res) => {
   return res.status(404).json(message);
 });
 
-app.post('/login', emailValidation, passwordValidation, (req, res) => 
+app.post('/login', emailValidation, passwordValidation, (_req, res) => 
   res.status(200).json({ token: token() }));
+
+app.post('/talker', 
+  tokenValidation,
+  nameValidation,
+  ageValidation,
+  talkValidation,
+  watchedAtValidation,
+  rateValidation, 
+  async (req, res) => {
+  const talkers = { ...req.body };
+
+  const pathResolve = path.resolve(__dirname, './talker.json');
+  const fileResult = JSON.parse(await fs.readFile(pathResolve));
+  
+  const newTalker = { ...talkers, id: fileResult.length + 1 };
+  fileResult.push(newTalker);
+
+  await fs.writeFile(pathResolve, JSON.stringify(fileResult));
+  res.status(201).json(newTalker);
+});
+
+app.use((error, _req, res) => {
+  res.status(400).json({ mensagem: error.message });
+});
