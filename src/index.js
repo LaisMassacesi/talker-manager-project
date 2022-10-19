@@ -80,6 +80,27 @@ app.post('/talker',
   res.status(201).json(newTalker);
 });
 
+app.put('/talker/:id',
+  tokenValidation,
+  nameValidation,
+  ageValidation,
+  talkValidation,
+  watchedAtValidation,
+  rateValidation, 
+  async (req, res) => {
+  const { id } = req.params;
+  const updatedData = { id: +id, ...req.body };
+  
+  const pathResolve = path.resolve(__dirname, './talker.json');
+  const fileResult = JSON.parse(await fs.readFile(pathResolve));
+  
+  const index = fileResult.findIndex((item) => item.id === +id);
+  fileResult[index] = updatedData;
+
+  await fs.writeFile(pathResolve, JSON.stringify(fileResult));
+  res.status(200).json(updatedData);
+});
+
 app.use((error, _req, res) => {
   res.status(400).json({ mensagem: error.message });
 });
