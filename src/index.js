@@ -101,6 +101,17 @@ app.put('/talker/:id',
   res.status(200).json(updatedData);
 });
 
+app.delete('/talker/:id', tokenValidation, async (req, res) => {
+  const { id } = req.params;
+  
+  const pathResolve = path.resolve(__dirname, './talker.json');
+  const fileResult = JSON.parse(await fs.readFile(pathResolve));
+  fileResult.splice(Number(id) - 1, 1);
+
+  await fs.writeFile(pathResolve, JSON.stringify(fileResult));
+  res.status(204).json();
+});
+
 app.use((error, _req, res) => {
   res.status(400).json({ mensagem: error.message });
 });
