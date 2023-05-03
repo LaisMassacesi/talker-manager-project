@@ -43,12 +43,9 @@ app.get('/talker', async (_req, res) => {
 
 app.get('/talker/search', tokenValidation, async (req, res) => {
   const talkers = await fsUtils.readFile();
-  console.log('req.query: ', req.query);
   const { q } = req.query;
-  console.log(q);
   
   const talkerSearched = talkers.filter((talker) => talker.name.includes(q));
-  console.log('pesquisa: ', talkerSearched);
   
   if (!q) {
     res.status(200).json();
